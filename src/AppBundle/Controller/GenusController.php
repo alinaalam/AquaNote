@@ -49,7 +49,22 @@ class GenusController extends Controller
      */
     public function showAction($genusName)
     {
-        $funFact = "Octopuses can change the color of their body in just *three-tenths* of a second!";
+        //$funFact = "Octopuses can change the color of their body in just *three-tenths* of a second!";
+        $em = $this->getDoctrine()->getManager();
+        $genus = $em->getRepository('AppBundle:Genus')->findOneBy([
+            'name' => $genusName
+        ]);
+
+        if($genus)
+        {
+            return $this->render(':genus:show.html.twig', [
+                'genus' => $genus
+            ]);
+        }
+
+        //throw $this->createNotFoundException('genus not found');
+        return $this->render(':genus:404.html.twig');
+        /*
         $cache = $this->get('doctrine_cache.providers.my_markdown_cache');
         $key = md5($funFact);
         if ($cache->contains($key)) {
@@ -67,7 +82,7 @@ class GenusController extends Controller
         return $this->render('genus/show.html.twig', [
             'name' => $genusName,
             'funFact' => $funFact,
-        ]);
+        ]);*/
 //        $templating = $this->container->get('templating');
 //        $html = $templating->render('genus/show.html.twig', [
 //            'name' => $genusName

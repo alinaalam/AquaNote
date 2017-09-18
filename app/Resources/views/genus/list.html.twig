@@ -13,6 +13,11 @@
         {#{% set index=1 %}#}
             {% for genus in genuses %}
                 <tr>
+                    <td>
+                        <a href="{{ path('genus_show', {genusName: genus.name}) }}">
+                            {{ genus.name }}
+                        </a>
+                    </td>
                     <td>{{ genus.name }}</td>
                     <td>{{ genus.speciesCount }}</td>
                 {#{% set index = index+1 %}#}
