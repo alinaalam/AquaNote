@@ -9,6 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 class GenusController extends Controller
 {
@@ -47,7 +48,7 @@ class GenusController extends Controller
         $em = $this->getDoctrine()->getManager();
         //$genuses = $em->getRepository('AppBundle:Genus')->findAll();
         //using custom query that uses a customized repository
-        $genuses = $em->getRepository('AppBundle:Genus')->findAllPublishedOrderedBySize();
+        $genuses = $em->getRepository('AppBundle:Genus')->findAllPublishedOrderedByRecentlyActive();
         //dump($em->getRepository('AppBundle:Genus'));die;
         //dump($genuses);die;
         return $this->render('genus/list.html.twig', [
@@ -68,8 +69,15 @@ class GenusController extends Controller
 
         if($genus)
         {
+            /*$recentNotes = $genus->getNotes()
+                ->filter(function(GenusNote $note){
+                    return $note->getCreatedAt() > new \DateTime('-3 months');
+                });*/
+            //custom query
+            $recentNotes = $em->getRepository('AppBundle:GenusNote')->findAllRecentNotesForGenus($genus);
             return $this->render(':genus:show.html.twig', [
-                'genus' => $genus
+                'genus' => $genus,
+                'recentNoteCount' => count($recentNotes)
             ]);
         }
 
@@ -107,18 +115,26 @@ class GenusController extends Controller
      */
     public function getNotesAction(Genus $genus)
     {
-        dump($genus); die;
-        
-        $notes = [
-            ['id' => 1, 'username' => 'AquaPelham', 'avatarUri' => '/images/leanna.jpeg', 'note' => 'Octopus asked me a riddle, outsmarted me', 'date' => 'Dec. 10, 2015'],
-            ['id' => 2, 'username' => 'AquaWeaver', 'avatarUri' => '/images/ryan.jpeg', 'note' => 'I counted 8 legs... as they wrapped around me', 'date' => 'Dec. 1, 2015'],
-            ['id' => 3, 'username' => 'AquaPelham', 'avatarUri' => '/images/leanna.jpeg', 'note' => 'Inked!', 'date' => 'Aug. 20, 2015'],
-        ];
+        //dump($genus); die;
+        $notes = [];
+        $dir = $this->get('kernel')->getRootDir() . '/../web/';
+        foreach ($genus->getNotes() as $note) {
+            $notes[] = [
+                'id' => $note->getId(),
+                'username' => $note->getUsername(),
+                'avatarUri' => $dir.'images/'.$note->getUserAvatarFilename(),
+                'note' => $note->getNote(),
+                'date' => $note->getCreatedAt()->format('M d, Y')
+            ];
+        }
 
         $data = [
-            'notes' => $notes,
+            'notes' => $notes
         ];
+
         return new JsonResponse($data);
         //return new Response(json_encode($data));
+
+        //dump($genus->getNotes());die;
     }
 }
