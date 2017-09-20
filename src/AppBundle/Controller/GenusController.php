@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Genus;
 use AppBundle\Entity\GenusNote;
+use AppBundle\Service\MarkdownTransformer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -67,22 +68,29 @@ class GenusController extends Controller
             'name' => $genusName
         ]);
 
-        if($genus)
+        if(!$genus)
         {
-            /*$recentNotes = $genus->getNotes()
+            //throw $this->createNotFoundException('genus not found');
+            return $this->render(':genus:404.html.twig');
+        }
+
+        /*$recentNotes = $genus->getNotes()
                 ->filter(function(GenusNote $note){
                     return $note->getCreatedAt() > new \DateTime('-3 months');
                 });*/
-            //custom query
-            $recentNotes = $em->getRepository('AppBundle:GenusNote')->findAllRecentNotesForGenus($genus);
-            return $this->render(':genus:show.html.twig', [
-                'genus' => $genus,
-                'recentNoteCount' => count($recentNotes)
-            ]);
-        }
+        //custom query
+        $recentNotes = $em->getRepository('AppBundle:GenusNote')->findAllRecentNotesForGenus($genus);
+        //$markdownParser = new MarkdownTransformer($this->get('markdown.parser'));
+        //using a service
+        $markdownParser = $this->get('app.markdown_transformer');
+        $funFact = $markdownParser->parse($genus->getFunFact());
 
-        //throw $this->createNotFoundException('genus not found');
-        return $this->render(':genus:404.html.twig');
+        return $this->render(':genus:show.html.twig', [
+            'genus' => $genus,
+            'recentNoteCount' => count($recentNotes),
+            'funFact' => $funFact
+        ]);
+
         /*
         $cache = $this->get('doctrine_cache.providers.my_markdown_cache');
         $key = md5($funFact);
