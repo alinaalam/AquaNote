@@ -49,4 +49,26 @@ class LoadFixtures implements FixtureInterface
         $key = array_rand($genera);
         return $genera[$key];
     }
+
+    public function subFamily()
+    {
+        $familia = [
+            'OctopusFamilia',
+            'BalaenaFamilia',
+            'OrcinusFamilia',
+            'HippocampusFamilia',
+            'AsteriasFamilia',
+            'AmphiprionFamilia',
+            'CarcharodonFamilia',
+            'AureliaFamilia',
+            'CucumariaFamilia',
+            'BalistoidesFamilia',
+            'ParalithodesFamilia',
+            'CheloniaFamilia',
+            'TrichechusFamilia',
+            'EumetopiasFamilia'
+        ];
+        $key = array_rand($familia);
+        return $familia[$key];
+    }
 }

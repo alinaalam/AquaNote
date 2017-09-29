@@ -24,7 +24,8 @@ class Genus
     private $name;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\SubFamily")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $subFamily;
 
@@ -47,6 +48,11 @@ class Genus
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\GenusNote", mappedBy="genus")
      */
     private $notes;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    private $firstDiscoveredAt;
 
     public function __construct()
     {
@@ -85,7 +91,7 @@ class Genus
 
     public function getFunFact()
     {
-        return '**TEST**'.$this->funFact;
+        return $this->funFact;
     }
 
     public function setFunFact($funFact)
@@ -104,11 +110,26 @@ class Genus
         $this->isPublished = $isPublished;
     }
 
+    public function getIsPublished()
+    {
+        return $this->isPublished;
+    }
+
     /**
      * @return ArrayCollection|GenusNotes[]
      */
     public function getNotes()
     {
         return $this->notes;
+    }
+
+    public function getFirstDiscoveredAt()
+    {
+        return $this->firstDiscoveredAt;
+    }
+
+    public function setFirstDiscoveredAt(\DateTime $firstDiscoveredAt = null)
+    {
+        $this->firstDiscoveredAt = $firstDiscoveredAt;
     }
 }
